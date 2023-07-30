@@ -25,6 +25,6 @@ func AuthMiddleware(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(403, gin.H{})
 		return
 	}
-
+	ctx.Set("userId", res.Header.Get("X-Kratos-Authenticated-Identity-Id"))
 	ctx.Next()
 }

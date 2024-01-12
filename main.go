@@ -21,7 +21,8 @@ func main() {
 		pgxuuid.Register(conn.TypeMap())
 		return nil
 	}
-	defer db.DbConn.Close()
+	//tx, _ := db.DbConn.Begin(context.Background())
+	//defer db.DbConn.Close()
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -39,5 +40,5 @@ func main() {
 		})
 	})
 	addRoutes(route)
-	route.Run("127.0.0.1:4200")
+	route.Run("127.0.0.1:4288")
 }

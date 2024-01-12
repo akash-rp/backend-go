@@ -2,8 +2,8 @@ package main
 
 import (
 	"backend/auth"
-	"backend/server"
-
+	"backend/middlewares"
+	"backend/routes"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,5 +11,7 @@ func addRoutes(r *gin.Engine) {
 	rgAuth := r.Group("/auth")
 	auth.AddAuthRoutes(rgAuth)
 	rg := r.Group("/", AuthMiddleware)
-	server.AddServerRoutes(rg)
+	routes.AddServerRoutes(rg)
+	siteGroup := rg.Group("/site", middlewares.SiteVerify)
+	routes.AddSitesRoutes(siteGroup)
 }

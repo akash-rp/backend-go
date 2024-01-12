@@ -53,3 +53,7 @@ type ServiceStatus []struct {
 	Running bool   `json:"running"`
 	Process string `json:"process"`
 }
+
+type Error struct {
+	Message string `json:"message"`
+}

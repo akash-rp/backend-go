@@ -11,34 +11,34 @@ import (
 	"net/http"
 )
 
-func KillSshUser(ctx *gin.Context) {
+func ServiceAction(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
-	sshUser := new(models.KillSshUser)
+	var serviceActionBody models.ServiceAction
 
-	if err := ctx.ShouldBind(&sshUser); err != nil {
+	if err := ctx.ShouldBind(&serviceActionBody); err != nil {
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	dbServerRow, err := db.DbConn.Query(ctx, "SELECT ip from servers WHERE \"userId\" = $1 AND id = $2", userId, ctx.Param("id"))
-
 	if err != nil {
 		ctx.AbortWithStatus(404)
 		return
 	}
-
 	serverDetails, err := pgx.CollectOneRow(dbServerRow, pgx.RowToAddrOfStructByNameLax[models.ServerDetails])
+
 	if err != nil {
 		ctx.AbortWithStatus(404)
 		return
 	}
 
-	sshUserJSON, _ := json.Marshal(sshUser)
-	resp, err := http.Post(fmt.Sprintf("http://%s:8081/ssh/kill", serverDetails.IP), "application/json", bytes.NewBuffer(sshUserJSON))
+	fmt.Print(serviceActionBody)
+	fmt.Print(serviceActionBody)
+	serviceActionBodyJSON, _ := json.Marshal(serviceActionBody)
+	resp, err := http.Post(fmt.Sprintf("http://%s:8081/service", serverDetails.IP), "application/json", bytes.NewBuffer(serviceActionBodyJSON))
 	if err != nil {
 		fmt.Print(err)
 	}
-
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -48,10 +48,12 @@ func KillSshUser(ctx *gin.Context) {
 		return
 	}
 
-	var sshUsers models.SshUsers
+	var serviceStatus models.ServiceStatus
+	fmt.Print(resp.StatusCode)
+	json.NewDecoder(resp.Body).Decode(&serviceStatus)
 
-	json.NewDecoder(resp.Body).Decode(&sshUsers)
-	// result.Stats, _ = io.ReadAll(resp.Body)
+	ctx.JSON(200, gin.H{
+		"services": serviceStatus,
+	})
 
-	ctx.JSON(200, sshUsers)
 }

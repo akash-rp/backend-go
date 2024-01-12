@@ -1,4 +1,4 @@
-package server
+package controllers
 
 import (
 	"backend/db"
@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-func getBannedIps(ctx *gin.Context) {
+func GetBannedIps(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
 
 	dbServerRow, err := db.DbConn.Query(context.Background(), "SELECT ip from servers WHERE \"userId\" = $1 AND id = $2", userId, ctx.Param("id"))

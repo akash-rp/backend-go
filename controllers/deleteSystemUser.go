@@ -11,17 +11,16 @@ import (
 	"net/http"
 )
 
-func KillSshUser(ctx *gin.Context) {
+func DeleteSystemUser(ctx *gin.Context) {
 	userId, _ := ctx.Get("userId")
-	sshUser := new(models.KillSshUser)
+	user := new(models.DeleteSystemUser)
 
-	if err := ctx.ShouldBind(&sshUser); err != nil {
+	if err := ctx.ShouldBind(&user); err != nil {
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	dbServerRow, err := db.DbConn.Query(ctx, "SELECT ip from servers WHERE \"userId\" = $1 AND id = $2", userId, ctx.Param("id"))
-
 	if err != nil {
 		ctx.AbortWithStatus(404)
 		return
@@ -33,12 +32,11 @@ func KillSshUser(ctx *gin.Context) {
 		return
 	}
 
-	sshUserJSON, _ := json.Marshal(sshUser)
-	resp, err := http.Post(fmt.Sprintf("http://%s:8081/ssh/kill", serverDetails.IP), "application/json", bytes.NewBuffer(sshUserJSON))
+	userJSON, _ := json.Marshal(user)
+	resp, err := http.Post(fmt.Sprintf("http://%s:8081/users/delete", serverDetails.IP), "application/json", bytes.NewReader(userJSON))
 	if err != nil {
-		fmt.Print(err)
+		ctx.AbortWithStatus(400)
 	}
-
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -48,10 +46,7 @@ func KillSshUser(ctx *gin.Context) {
 		return
 	}
 
-	var sshUsers models.SshUsers
-
-	json.NewDecoder(resp.Body).Decode(&sshUsers)
-	// result.Stats, _ = io.ReadAll(resp.Body)
-
-	ctx.JSON(200, sshUsers)
+	systemUsers := new(models.SystemUsers)
+	json.NewDecoder(resp.Body).Decode(&systemUsers)
+	ctx.JSON(http.StatusOK, systemUsers)
 }

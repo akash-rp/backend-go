@@ -8,3 +8,7 @@ type SshUsers []struct {
 	Ideal   string `json:"ideal"`
 	Process string `json:"process"`
 }
+
+type KillSshUser struct {
+	ID string `json:"id"`
+}

@@ -1,10 +1,9 @@
 package auth
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/http/httputil"
-
-	"github.com/gin-gonic/gin"
 )
 
 func modifyResponse(res *http.Response) error {
